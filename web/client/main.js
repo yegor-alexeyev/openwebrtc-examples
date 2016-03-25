@@ -16,7 +16,7 @@ var audioOnlyView;
 var signalingChannel;
 var pc;
 var peer;
-var localStream;
+//var localStream;
 var chatDiv;
 var chatText;
 var chatButton;
@@ -91,7 +91,7 @@ window.onload = function () {
         audioCheckBox.disabled = videoCheckBox.disabled = chatCheckBox.disabled = joinButton.disabled = true;
 
         // only chat
-        if (!(videoCheckBox.checked || audioCheckBox.checked)) peerJoin();
+        //if (!(videoCheckBox.checked || audioCheckBox.checked)) peerJoin();
 
         function peerJoin() {
             var sessionId = document.getElementById("session_txt").value;
@@ -126,6 +126,7 @@ window.onload = function () {
             };
         }
 
+/*
         // video/audio with our without chat
         if (videoCheckBox.checked || audioCheckBox.checked) {
             // get a local stream
@@ -147,6 +148,8 @@ window.onload = function () {
                 peerJoin();
             }, logError);
         }
+*/
+        peerJoin();
     };
 
     document.getElementById("owr-logo").onclick = function() {
@@ -170,6 +173,8 @@ function handleMessage(evt) {
 
     if (!pc && (message.sessionDescription || message.sdp || message.candidate))
         start(false);
+
+    console.log("msd = " + evt.data);
 
     if (message.sessionDescription || message.sdp) {
         var desc = new RTCSessionDescription({
@@ -252,12 +257,14 @@ function start(isInitiator) {
         sendOrientationUpdate();
     };
 
+/*
     if (audioCheckBox.checked || videoCheckBox.checked) {
         pc.addStream(localStream);
     }
+*/
 
     if (isInitiator)
-        pc.createOffer(localDescCreated, logError);
+        pc.createOffer(localDescCreated, logError,  { offerToReceiveVideo: 1, offerToReceiveAudio: 0 });
 
 }
 

@@ -1,0 +1,2 @@
+#!/bin/sh
+PORT=30222 node channel_server.js
