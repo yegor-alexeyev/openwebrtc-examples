@@ -83,73 +83,32 @@ window.onload = function () {
 
     joinButton.disabled = !navigator.webkitGetUserMedia;
     joinButton.onclick = function (evt) {
-        if (!(audioCheckBox.checked || videoCheckBox.checked || chatCheckBox.checked)) {
-            alert("Choose at least audio, video or chat.");
-            return;
-        }
+      signalingChannel = new SignalingChannel("abcba");
 
-        audioCheckBox.disabled = videoCheckBox.disabled = chatCheckBox.disabled = joinButton.disabled = true;
+      // show and update share link
+      var link = document.getElementById("share_link");
+      var maybeAddHash = window.location.href.indexOf('#') !== -1 ? "" : ("#abcba");
+      link.href = link.textContent = window.location.href + maybeAddHash;
+      shareView.style.visibility = "visible";
 
-        // only chat
-        //if (!(videoCheckBox.checked || audioCheckBox.checked)) peerJoin();
+      // another peer has joined our session
+      signalingChannel.onpeer = function (evt) {
 
-        function peerJoin() {
-            var sessionId = document.getElementById("session_txt").value;
-            signalingChannel = new SignalingChannel(sessionId);
+          callButton.disabled = false;
+          shareView.style.visibility = "hidden";
 
-            // show and update share link
-            var link = document.getElementById("share_link");
-            var maybeAddHash = window.location.href.indexOf('#') !== -1 ? "" : ("#" + sessionId);
-            link.href = link.textContent = window.location.href + maybeAddHash;
-            shareView.style.visibility = "visible";
+          peer = evt.peer;
+          peer.onmessage = handleMessage;
 
-            callButton.onclick = function () {
-                start(true);
-            };
-
-            // another peer has joined our session
-            signalingChannel.onpeer = function (evt) {
-
-                callButton.disabled = false;
-                shareView.style.visibility = "hidden";
-
-                peer = evt.peer;
-                peer.onmessage = handleMessage;
-
-                peer.ondisconnect = function () {
-                    callButton.disabled = true;
-                    remoteView.style.visibility = "hidden";
-                    if (pc)
-                        pc.close();
-                    pc = null;
-                };
-            };
-        }
-
-/*
-        // video/audio with our without chat
-        if (videoCheckBox.checked || audioCheckBox.checked) {
-            // get a local stream
-            navigator.webkitGetUserMedia({ "audio": audioCheckBox.checked,
-                "video": videoCheckBox.checked}, function (stream) {
-                // .. show it in a self-view
-                selfView.src = URL.createObjectURL(stream);
-                // .. and keep it to be sent later
-                localStream = stream;
-
-                joinButton.disabled = true;
-                chatButton.disabled = true;
-
-                if (videoCheckBox.checked)
-                    selfView.style.visibility = "visible";
-                else if (audioCheckBox.checked && !(chatCheckBox.checked))
-                    audioOnlyView.style.visibility = "visible";
-
-                peerJoin();
-            }, logError);
-        }
-*/
-        peerJoin();
+          peer.ondisconnect = function () {
+              callButton.disabled = true;
+              remoteView.style.visibility = "hidden";
+              if (pc)
+                  pc.close();
+              pc = null;
+          };
+      };
+      start(true);
     };
 
     document.getElementById("owr-logo").onclick = function() {
