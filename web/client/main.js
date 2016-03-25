@@ -107,8 +107,8 @@ window.onload = function () {
                   pc.close();
               pc = null;
           };
+        start(true);
       };
-      start(true);
     };
 
     document.getElementById("owr-logo").onclick = function() {
